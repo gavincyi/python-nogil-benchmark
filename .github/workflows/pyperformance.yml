@@ -18,15 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Build the Python gil Docker image
+      run: docker build . --file Dockerfile_gil --tag python-gil --build-arg REQUIREMENTS_FILE=${{ matrix.requirements-txt }}
+    - name: Run Python gil pyperformance
+      run: docker run -v $(pwd):${{ matrix.output-path }} python-gil python -m pyperformance run -o ${{ matrix.output-path }}/python-gil.json --benchmarks=${{ matrix.benchmark-tasks }}
     - name: Build the nogil 3.9.10 Docker image
       run: docker build . --file Dockerfile_nogil --tag python-nogil --build-arg REQUIREMENTS_FILE=${{ matrix.requirements-txt }}
     - name: Run nogil-3-9-10 pyperformance
       run: docker run -v $(pwd):${{ matrix.output-path }} python-nogil python -m pyperformance run -o ${{ matrix.output-path }}/python-nogil.json --benchmarks=${{ matrix.benchmark-tasks }}
-    # - name: Build the 3.9.10 Docker image
-    #   run: docker build . --file Dockerfile_3_9_10 --tag python-3-9-10
-    # - name: 3.9.10 Install
-    #   run: docker run python-3-9-10 make install
-    # - name: Run nogil-3-9-10 pyperformance
-    #   run: docker run -v $(pwd):/usr/src/app/output python-3-9-10 python -m pyperformance run -o /usr/src/app/output/python-3.9.10.json --benchmarks=-sqlalchemy_declarative,-sqlalchemy_imperative
-    # - name: Compare result
-    #   run: docker run python-3-9-10 python -m pyperformance compare python-3.9.10.json python-nogil-3.9.10.json
+    - name: Compare result
+      run: docker run python-gil python -m pyperformance compare python-gil.json python-nogil.json
