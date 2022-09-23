@@ -1,0 +1,30 @@
+name: pyperformance (3.9.10 v.s. nogil 3.9.10)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the nogil 3.9.10 Docker image
+      run: docker build . --file Dockerfile_nogil_3_9_10 --tag python-nogil-3-9-10
+    - name: nogil 3.9.10 Install
+      run: docker run python-nogil-3-9-10 make install
+    - name: Run nogil-3-9-10 pyperformance
+      run: docker run -v $(pwd):/usr/src/app/output python-nogil-3-9-10 python -m pyperformance run -o /usr/src/app/output/python-nogil-3.9.10.json --benchmarks=-sqlalchemy_declarative,-sqlalchemy_imperative
+    - name: Build the 3.9.10 Docker image
+      run: docker build . --file Dockerfile_3_9_10 --tag python-3-9-10
+    - name: 3.9.10 Install
+      run: docker run python-3-9-10 make install
+    - name: Run nogil-3-9-10 pyperformance
+      run: docker run -v $(pwd):/usr/src/app/output python-3-9-10 python -m pyperformance run -o /usr/src/app/output/python-3.9.10.json --benchmarks=-sqlalchemy_declarative,-sqlalchemy_imperative
+    - name: Compare result
+      run: docker run python-3-9-10 python -m pyperformance compare python-3.9.10.json python-nogil-3.9.10.json
