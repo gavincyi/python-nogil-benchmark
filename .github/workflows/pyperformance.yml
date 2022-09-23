@@ -1,10 +1,4 @@
 name: pyperformance (gil v.s. nogil 3.9.10)
-inputs:
-  gil-version: 3.9.10
-  requirements-txt: "requirements_pyperformance.txt"
-  benchmark-tasks: "-sqlalchemy_declarative,-sqlalchemy_imperative"
-  output-path: "/usr/src/app/output"
-
 on:
   push:
     branches: [ "main" ]
@@ -14,15 +8,20 @@ on:
 jobs:
 
   build:
-
+    strategy:
+      fail-fast: true
+      matrix:
+        gil-version: 3.9.10
+        requirements-txt: "requirements_pyperformance.txt"
+        benchmark-tasks: "-sqlalchemy_declarative,-sqlalchemy_imperative"
+        output-path: "/usr/src/app/output"
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Build the nogil 3.9.10 Docker image
-      run: docker build . --file Dockerfile_nogil --tag python-nogil --build-arg REQUIREMENTS_FILE=${{ inputs.requirements-txt }}
+      run: docker build . --file Dockerfile_nogil --tag python-nogil --build-arg REQUIREMENTS_FILE=${{ matrix.requirements-txt }}
     - name: Run nogil-3-9-10 pyperformance
-      run: docker run -v $(pwd):${{ inputs.output-path }} python-nogil python -m pyperformance run -o ${{ inputs.output-path }}/python-nogil.json --benchmarks=${{ inputs.benchmark-tasks }}
+      run: docker run -v $(pwd):${{ matrix.output-path }} python-nogil python -m pyperformance run -o ${{ matrix.output-path }}/python-nogil.json --benchmarks=${{ matrix.benchmark-tasks }}
     # - name: Build the 3.9.10 Docker image
     #   run: docker build . --file Dockerfile_3_9_10 --tag python-3-9-10
     # - name: 3.9.10 Install
