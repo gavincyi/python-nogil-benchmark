@@ -27,4 +27,4 @@ jobs:
     - name: Run nogil-3-9-10 pyperformance
       run: docker run -v $(pwd):${{ matrix.output-path }} python-nogil python -m pyperformance run -o ${{ matrix.output-path }}/python-nogil.json --benchmarks=${{ matrix.benchmark-tasks }}
     - name: Compare result
-      run: docker run python-gil python -m pyperformance compare python-gil.json python-nogil.json
+      run: docker run -v $(pwd):${{ matrix.output-path }} python-gil python -m pyperformance compare ${{ matrix.output-path }}/python-gil.json ${{ matrix.output-path }}/python-nogil.json
