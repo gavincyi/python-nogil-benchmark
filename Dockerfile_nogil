@@ -2,9 +2,10 @@ FROM nogil/python
 
 WORKDIR /usr/src/app
 VOLUME /usr/src/app/output
+ARG REQUIREMENTS_FILE
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY $REQUIREMENTS_FILE ./
+RUN pip install --no-cache-dir -r $REQUIREMENTS_FILE
 
 COPY . .
 
