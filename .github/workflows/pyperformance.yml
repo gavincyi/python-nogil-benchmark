@@ -5,6 +5,12 @@ inputs:
   benchmark-tasks: "-sqlalchemy_declarative,-sqlalchemy_imperative"
   output-path: "/usr/src/app/output"
 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
 
   build:
