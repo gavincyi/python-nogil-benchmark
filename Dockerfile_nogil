@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 VOLUME /usr/src/app/output
 ARG REQUIREMENTS_FILE
 
+EXPOSE 8000
+
 COPY $REQUIREMENTS_FILE ./
 RUN pip install --no-cache-dir -r $REQUIREMENTS_FILE
 
